@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document("USUARIO")
 @Data
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UsuarioDocument {
 
         @Id

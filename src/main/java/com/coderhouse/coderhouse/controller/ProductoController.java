@@ -1,12 +1,9 @@
 package com.coderhouse.coderhouse.controller;
 
-import com.coderhouse.coderhouse.document.ProductoDocument;
-import com.coderhouse.coderhouse.model.ProductoRequest;
-import com.coderhouse.coderhouse.model.ProductoResponse;
+import com.coderhouse.coderhouse.model.request.ProductoRequest;
+import com.coderhouse.coderhouse.model.response.ProductoResponse;
 import com.coderhouse.coderhouse.service.ProductoService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +16,7 @@ public class ProductoController {
 
     private final ProductoService productoService;
 
-    @PostMapping("/crear")
+    @PostMapping()
     public ResponseEntity<?> crearProducto(
             @RequestBody ProductoRequest producto) {
 
@@ -35,8 +32,20 @@ public class ProductoController {
 
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualizarProducto(
+            @PathVariable("id") String id,
+            @RequestBody ProductoRequest producto) {
+
+        productoService.actualizarProducto(producto, id);
+
+        return ResponseEntity.ok().build();
+    }
+
+
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> borrarProducto(@PathVariable("id") Long id) {
+    public ResponseEntity<?> borrarProducto(@PathVariable("id") String id) {
 
         productoService.borrarProducto(id);
 

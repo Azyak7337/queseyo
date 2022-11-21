@@ -1,14 +1,15 @@
 package com.coderhouse.coderhouse.service;
 
 import com.coderhouse.coderhouse.document.ProductoDocument;
-import com.coderhouse.coderhouse.model.ProductoRequest;
-import com.coderhouse.coderhouse.model.ProductoResponse;
+import com.coderhouse.coderhouse.model.request.ProductoRequest;
+import com.coderhouse.coderhouse.model.response.ProductoResponse;
 import com.coderhouse.coderhouse.model.mapper.ProductoMapper;
 import com.coderhouse.coderhouse.repository.ProductoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,7 +43,22 @@ public class ProductoService {
         return productos;
     }
 
-    public void borrarProducto(Long id) {
+    public ProductoDocument actualizarProducto(ProductoRequest productoRequest, String id) {
+
+        ProductoDocument producto = productoRepository.findById(id)
+                .orElseThrow( () -> new NoSuchElementException("NO EXISTE EL PRODUCTO"));
+
+        producto.setDescripcion(productoRequest.getDescripcion());
+        producto.setPrecio(productoRequest.getPrecio());
+        producto.setNombre(producto.getNombre());
+        producto.setCategoria(producto.getCategoria());
+
+        productoRepository.save(producto);
+
+        return producto;
+    }
+
+    public void borrarProducto(String id) {
 
         productoRepository.deleteById(id);
 

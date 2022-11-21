@@ -1,4 +1,4 @@
-package com.coderhouse.coderhouse.model;
+package com.coderhouse.coderhouse.model.request;
 
 import lombok.Builder;
 import lombok.Data;

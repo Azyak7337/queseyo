@@ -1,7 +1,6 @@
 package com.coderhouse.coderhouse.document;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -13,14 +12,18 @@ import java.util.List;
 @Document("CARRITO")
 @Getter
 @Setter
+@Builder
 public class CarritoDocument {
 
     @Id
-    private Long id;
+    private String id;
 
-    private List<ProductoDocument> productos;
+    private List<CarritoItem> productos;
 
     private LocalDateTime fechaAdicion;
 
     private String direccionEntrega;
+
+    private String email;
+
 }

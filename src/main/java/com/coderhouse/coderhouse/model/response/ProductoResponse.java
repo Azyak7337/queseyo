@@ -1,4 +1,4 @@
-package com.coderhouse.coderhouse.model;
+package com.coderhouse.coderhouse.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
