@@ -27,7 +27,6 @@ public class OrdenService {
     private final CarritoRepository carritoRepository;
 
     private final ProductoRepository productoRepository;
-    private final SequenceGenerator sequenceGenerator;
     private final UsuarioService userService;
 
     public Optional<OrdenResponse> getOrderById(Long orderId) {
@@ -65,7 +64,6 @@ public class OrdenService {
 
         if(cart.isPresent() && user.isPresent()) {
             OrdenDocument order = OrdenDocument.builder()
-                    .ordenNumero(sequenceGenerator.generateSequence(OrdenDocument.SEQUENCE_NAME))
                     .email(user.get().getEmail())
                     .usuarioId(ordenRequest.getUserId())
                     .estado(EstadoEnum.GENERADA)
