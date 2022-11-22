@@ -1,76 +1,82 @@
 package com.coderhouse.coderhouse.service;
 
 import com.coderhouse.coderhouse.document.UsuarioDocument;
-import com.coderhouse.coderhouse.model.request.UsuarioRequest;
-import com.coderhouse.coderhouse.model.response.UsuarioResponse;
+import com.coderhouse.coderhouse.exceptions.NotFoundException;
 import com.coderhouse.coderhouse.repository.UsuarioRepository;
-import com.coderhouse.coderhouse.security.JwtProvider;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
-public class UsuarioService {
+@AllArgsConstructor
+@Slf4j
+public class UsuarioService implements UserDetailsService {
+    private final UsuarioRepository userRepository;
 
-    private final UsuarioRepository usuarioRepository;
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        UsuarioDocument user = userRepository.findByUsername(username);
+        if(user == null) {
+            log.error("Usuario no encontrado en la base de datos" + LocalDate.now());
+            throw new UsernameNotFoundException("Usuario no encontrado en la base de datos");
+        } else {
+            log.info("Usuario encontrado" + LocalDate.now());
+        }
 
-    private final JwtProvider jwtProvider;
-    private final PasswordEncoder passwordEncoder;
-
-//    public UserResponse login(String email, String password) {
-//        UserResponse response = null;
-//        try {
-//            var token = jwtProvider.getJwToken(email);
-//            var dataFromCache = cacheClient.recover(email, UserDocument.class);
-//            if (Objects.nonNull(dataFromCache)) {
-////                var dataFromCacheResponse = UserBuilder.documentToResponse(dataFromCache);
-////                dataFromCacheResponse.setToken(token);
-////                response = dataFromCacheResponse;
-//                response = UserResponse.builder().email(email).token(token).build();
-//            }
-//            UserDocument userDocumentFound = userRepository.findByEmail(email);
-//            if (userDocumentFound == null || !passwordEncoder.matches(password, userDocumentFound.getPassword())) {//!userDocumentFound.getPassword().equals(password)) {
-//                throw new ApiRestException(email, "Email o contraseña incorrectos");
-//            }
-//            saveUserInCache(userDocumentFound);
-//            response = UserResponse.builder().email(email).token(token).build();
-//        } catch (JsonProcessingException e) {
-//            log.error("Erorr JsonProcessingException", e);
-//        }
-//
-//
-//        return response;
-//    }
-
-    public UsuarioDocument signUp(UsuarioRequest request) {
-
-//            validateUser(request);
-
-            request.setPassword(passwordEncoder.encode(request.getPassword()));
-
-            UsuarioDocument usuario = UsuarioDocument.builder()
-                    .email(request.getEmail())
-                    .name(request.getName())
-                    .password(request.getPassword())
-                    .userName(request.getUserName())
-                    .phone(request.getPhone())
-                    .build();
-
-            usuarioRepository.save(usuario);
-
-        return usuario;
+        return UsuarioDocument.build(user);
     }
 
-    void validateUser(UsuarioRequest request) {
-        UsuarioDocument usuario = usuarioRepository.findByUserName(request.getUserName());
-        if (usuario != null) {
-            throw new IllegalStateException("El usuario ya existe");
+    public Optional<UsuarioDocument> getUserById(final String id) {
+        Optional<UsuarioDocument> user = userRepository.findById(id);
+        if(user.isPresent()) {
+            log.info("Usuario encontrado" + LocalDate.now());
+            return user;
+        } else {
+            log.error("Usuario no encontrado en la base de datos" + LocalDate.now());
+            throw new NotFoundException("No existe usuario con Id " + id);
         }
-        usuario = usuarioRepository.findByEmail(request.getEmail());
-        if (usuario != null) {
-            throw new IllegalStateException("El usuario ya existe");
+    }
+
+    public List<UsuarioDocument> getUsers() {
+        return userRepository.findAll();
+    }
+
+    public UsuarioDocument updateUser(final UsuarioDocument user, final String userId) {
+        Optional<UsuarioDocument> updatedUser = userRepository.findById(userId);
+
+        if(updatedUser.isPresent()) {
+            updatedUser.get().setName(user.getName());
+            updatedUser.get().setEmail(user.getEmail());
+            updatedUser.get().setUsername(user.getUsername());
+            updatedUser.get().setPhoneNumber(user.getPhoneNumber());
+
+            userRepository.save(updatedUser.get());
+            log.info("Usuario creado exitosamente" + LocalDate.now());
+            return updatedUser.get();
+        } else {
+            log.error("Usuario no encontrado en la base de datos" + LocalDate.now());
+            throw new NotFoundException("No existe usuario con Id " + userId);
+        }
+    }
+
+    public void deleteUser(final String userId) {
+        Optional<UsuarioDocument> user = userRepository.findById(userId);
+
+        if(user.isPresent()) {
+            log.info("Usuario eliminado correctamente" + LocalDate.now());
+            userRepository.deleteById(userId);
+        } else {
+            log.error("Usuario no encontrado en la base de datos" + LocalDate.now());
+            throw new NotFoundException("No existe usuario con ese Id " + userId);
         }
     }
 }

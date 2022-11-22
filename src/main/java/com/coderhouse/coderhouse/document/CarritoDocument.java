@@ -26,4 +26,6 @@ public class CarritoDocument {
 
     private String email;
 
+    private String usuarioId;
+
 }

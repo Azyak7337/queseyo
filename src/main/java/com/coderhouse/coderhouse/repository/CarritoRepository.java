@@ -10,4 +10,7 @@ import java.util.Optional;
 public interface CarritoRepository extends MongoRepository<CarritoDocument, String> {
 
     public Optional<CarritoDocument> findByEmail(String email);
+
+    public Optional<CarritoDocument> findByUsuarioId(String userId);
+    public void deleteByUsuarioId(String userId);
 }
